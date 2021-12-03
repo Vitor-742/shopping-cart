@@ -1,5 +1,5 @@
 const items = document.querySelector('.items');
-const cartItems = document.querySelector('.cart__items');
+const cartItems = document.querySelector('.cart__items');// tirar do localstorage quando remover da lista
 
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
@@ -41,14 +41,19 @@ function createCartItemElement({ sku, name, salePrice }) {
 }
 
 const itemDoCarrinho = async (p1) => {
-  console.log(p1);
   const item = await fetchItem(p1);
   const a = createCartItemElement({
     sku: item.id,
     name: item.title,
     salePrice: item.price,
   });
+  saveCartItems(p1, item);
   cartItems.appendChild(a);
+};
+
+const buscar = () => {
+  const ids = getSavedCartItems();
+  ids.forEach((id) => itemDoCarrinho(id));
 };
 
 const addProductToSection = async () => {
@@ -71,4 +76,5 @@ function getSkuFromProductItem(item) {
 
 window.onload = () => {
   addProductToSection();
+  buscar();
 };
