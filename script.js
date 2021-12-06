@@ -1,7 +1,8 @@
 const items = document.querySelector('.items');
-const cartItems = document.querySelector('.cart__items');// tirar do localstorage quando remover da lista
-const precoTotal = document.querySelector('.total-price')
-let precoAt = 0
+const cartItems = document.querySelector('.cart__items');
+const precoTotal = document.querySelector('.total-price');
+const botaoLimpa = document.querySelector('.empty-cart');
+let precoAt = 0;
 
 // fazer um jeito do numero ficar exatamente certo pra passar no av.
 
@@ -36,6 +37,13 @@ function cartItemClickListener(event) {
   a.parentNode.removeChild(a);
 }
 
+const tiraDoStorage = async (p1) => {
+  const a = await fetchItem(p1);
+  localStorage.removeItem(a.id);
+  precoTotal.innerHTML = (precoAt - a.price);
+  precoAt -= a.price;
+};
+
 function createCartItemElement({ sku, name, salePrice }) {
   const li = document.createElement('li');
   li.className = 'cart__item';
@@ -59,23 +67,21 @@ const itemDoCarrinho = async (p1) => {
 const buscar = () => {
   const ids = getSavedCartItems();
   ids.forEach((id) => itemDoCarrinho(id));
-  let cont = 0
+  let cont = 0;
   if (ids.length > 0) {
-    ids.forEach( async (item) => {
-    const a = await fetchItem(item)
-    cont += a.price
-    precoAt = cont
-    precoTotal.innerHTML = (cont)
-  })
+    ids.forEach(async (item) => {
+    const a = await fetchItem(item);
+    cont += a.price;
+    precoAt = cont;
+    precoTotal.innerHTML = (cont);
+  });
 }
 };
 
-const tiraDoStorage = async (p1) => {
-  let a = await fetchItem(p1)
-  localStorage.removeItem(a.id)
-  precoTotal.innerHTML = (precoAt - a.price)
-  precoAt = precoAt - a.price
-}
+const totalPreco = async (p1) => {
+  precoTotal.innerHTML = (precoAt + p1.price);
+  precoAt += p1.price;
+};
 
 const addProductToSection = async () => {
   const productElement = await fetchProducts('computador');
@@ -88,16 +94,18 @@ const addProductToSection = async () => {
     const botao = productElement2.lastChild;
     botao.addEventListener('click', () => itemDoCarrinho(productElement[index].id));
     botao.addEventListener('click', () => totalPreco(productElement[index]));
-    //botao.addEventListener('click', () => tiraDoStorage(productElement[index]));
 
     items.appendChild(productElement2);
   });
 };
 
-const totalPreco = async (p1) => {
-  precoTotal.innerHTML = (precoAt + p1.price)
-  precoAt += p1.price
-}
+const limparTudo = () => {
+  localStorage.clear();
+  const a = document.querySelectorAll('.cart__item');
+  a.forEach((b) => b.parentNode.removeChild(b));
+  precoTotal.innerHTML = 0;
+  precoAt = 0;
+};
 
 function getSkuFromProductItem(item) {
   return item.querySelector('span.item__sku').innerText;
@@ -106,4 +114,5 @@ function getSkuFromProductItem(item) {
 window.onload = () => {
   addProductToSection();
   buscar();
+  botaoLimpa.addEventListener('click', limparTudo);
 };
