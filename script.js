@@ -118,6 +118,7 @@ const addProductToSection = async () => {
     botao.addEventListener('click', () =>
       itemDoCarrinho(productElement[index].id));
     botao.addEventListener('click', () => totalPreco(productElement[index]));
+
     items.appendChild(productElement2);
   });
 };
