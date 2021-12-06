@@ -1,5 +1,9 @@
 const items = document.querySelector('.items');
 const cartItems = document.querySelector('.cart__items');// tirar do localstorage quando remover da lista
+const precoTotal = document.querySelector('.total-price')
+let precoAt = 0
+
+// fazer um jeito do numero ficar exatamente certo pra passar no av.
 
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
@@ -37,6 +41,7 @@ function createCartItemElement({ sku, name, salePrice }) {
   li.className = 'cart__item';
   li.innerText = `SKU: ${sku} | NAME: ${name} | PRICE: $${salePrice}`;
   li.addEventListener('click', cartItemClickListener);
+  li.addEventListener('click', (() => tiraDoStorage(sku)));
   return li;
 }
 
@@ -54,7 +59,23 @@ const itemDoCarrinho = async (p1) => {
 const buscar = () => {
   const ids = getSavedCartItems();
   ids.forEach((id) => itemDoCarrinho(id));
+  let cont = 0
+  if (ids.length > 0) {
+    ids.forEach( async (item) => {
+    const a = await fetchItem(item)
+    cont += a.price
+    precoAt = cont
+    precoTotal.innerHTML = (cont)
+  })
+}
 };
+
+const tiraDoStorage = async (p1) => {
+  let a = await fetchItem(p1)
+  localStorage.removeItem(a.id)
+  precoTotal.innerHTML = (precoAt - a.price)
+  precoAt = precoAt - a.price
+}
 
 const addProductToSection = async () => {
   const productElement = await fetchProducts('computador');
@@ -63,12 +84,20 @@ const addProductToSection = async () => {
       sku: id,
       name: title,
       image: thumbnail,
-    });
+    }); 
     const botao = productElement2.lastChild;
     botao.addEventListener('click', () => itemDoCarrinho(productElement[index].id));
+    botao.addEventListener('click', () => totalPreco(productElement[index]));
+    //botao.addEventListener('click', () => tiraDoStorage(productElement[index]));
+
     items.appendChild(productElement2);
   });
 };
+
+const totalPreco = async (p1) => {
+  precoTotal.innerHTML = (precoAt + p1.price)
+  precoAt += p1.price
+}
 
 function getSkuFromProductItem(item) {
   return item.querySelector('span.item__sku').innerText;
