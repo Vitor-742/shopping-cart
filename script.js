@@ -5,8 +5,6 @@ const botaoLimpa = document.querySelector('.empty-cart');
 const container = document.querySelector('.container');
 let precoAt = 0;
 
-// fazer um jeito do numero ficar exatamente certo pra passar no av.
-
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
   img.className = 'item__image';
